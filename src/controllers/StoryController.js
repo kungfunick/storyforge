@@ -53,7 +53,8 @@ class StoryController {
   }
 
   async loadAll(userId = null) {
-    return StorageService.loadAllStories(userId);
+    // FIX: Changed from loadAllStories to listStories to match StorageService
+    return StorageService.listStories(userId);
   }
 
   async delete(storyId, userId = null) {

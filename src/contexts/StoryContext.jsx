@@ -24,22 +24,22 @@ const ActionTypes = {
 const initialState = {
   story: null,
   stories: [],
-  isLoading: true,
+  loading: true,
   error: null,
   activeView: 'overview',
   isGenerating: false,
   continuationOptions: null,
-  regenerationPrompt: null,
+  pendingCoreChanges: null,
 };
 
 function storyReducer(state, action) {
   switch (action.type) {
     case ActionTypes.SET_LOADING:
-      return { ...state, isLoading: action.payload };
+      return { ...state, loading: action.payload };
     case ActionTypes.SET_ERROR:
-      return { ...state, error: action.payload, isLoading: false };
+      return { ...state, error: action.payload, loading: false };
     case ActionTypes.SET_STORY:
-      return { ...state, story: action.payload, isLoading: false, error: null };
+      return { ...state, story: action.payload, loading: false, error: null };
     case ActionTypes.SET_STORIES:
       return { ...state, stories: action.payload };
     case ActionTypes.UPDATE_STORY:
@@ -53,7 +53,7 @@ function storyReducer(state, action) {
     case ActionTypes.CLEAR_CONTINUATION_OPTIONS:
       return { ...state, continuationOptions: null };
     case ActionTypes.SET_REGENERATION_PROMPT:
-      return { ...state, regenerationPrompt: action.payload };
+      return { ...state, pendingCoreChanges: action.payload };
     default:
       return state;
   }
@@ -81,7 +81,8 @@ export function StoryProvider({ children, userId = null }) {
     }
   }, [userId]);
 
-  const createStory = useCallback((title) => {
+  // FIX: Export as createNew to match what components expect
+  const createNew = useCallback((title) => {
     const newStory = storyController.createNew(title);
     dispatch({ type: ActionTypes.SET_STORY, payload: newStory });
     return newStory;
@@ -128,55 +129,75 @@ export function StoryProvider({ children, userId = null }) {
     }
   }, [state.story?.id, userId]);
 
-  const updateStoryFields = useCallback((updates) => {
+  const updateStory = useCallback((updates) => {
     if (!state.story) return;
     const result = storyController.updateFields(state.story, updates);
     dispatch({ type: ActionTypes.UPDATE_STORY, payload: result.story });
     if (result.shouldPromptRegeneration) {
       dispatch({ 
         type: ActionTypes.SET_REGENERATION_PROMPT, 
-        payload: { changes: updates, changedFields: result.changedFields }
+        payload: { changes: result.changedFields }
       });
     }
   }, [state.story]);
 
-  const dismissRegenerationPrompt = useCallback(() => {
+  const updateSynopsis = useCallback((synopsis) => {
+    updateStory({ synopsis });
+  }, [updateStory]);
+
+  const dismissChanges = useCallback(() => {
     dispatch({ type: ActionTypes.SET_REGENERATION_PROMPT, payload: null });
   }, []);
 
-  const addElement = useCallback((elementType, elementData) => {
-    if (!state.story) return;
-    const updated = storyController.addElement(state.story, elementType, elementData);
-    dispatch({ type: ActionTypes.SET_STORY, payload: updated });
+  const confirmRegeneration = useCallback(async () => {
+    // TODO: Implement regeneration
+    dispatch({ type: ActionTypes.SET_REGENERATION_PROMPT, payload: null });
+  }, []);
+
+  const createElement = useCallback((elementType, elementData) => {
+    if (!state.story) return { errors: ['No story loaded'] };
+    try {
+      const updated = storyController.addElement(state.story, elementType, elementData);
+      dispatch({ type: ActionTypes.SET_STORY, payload: updated });
+      return { errors: [] };
+    } catch (error) {
+      return { errors: [error.message] };
+    }
   }, [state.story]);
 
   const updateElement = useCallback((elementType, elementId, updates) => {
-    if (!state.story) return;
-    const updated = storyController.updateElement(state.story, elementType, elementId, updates);
-    dispatch({ type: ActionTypes.SET_STORY, payload: updated });
+    if (!state.story) return { errors: ['No story loaded'] };
+    try {
+      const updated = storyController.updateElement(state.story, elementType, elementId, updates);
+      dispatch({ type: ActionTypes.SET_STORY, payload: updated });
+      return { errors: [] };
+    } catch (error) {
+      return { errors: [error.message] };
+    }
   }, [state.story]);
 
-  const removeElement = useCallback((elementType, elementId) => {
+  const deleteElement = useCallback((elementType, elementId) => {
     if (!state.story) return;
     const updated = storyController.removeElement(state.story, elementType, elementId);
     dispatch({ type: ActionTypes.SET_STORY, payload: updated });
   }, [state.story]);
 
-  const addRelationship = useCallback((sourceId, targetId, type, description) => {
+  const createRelationship = useCallback((relationshipData) => {
     if (!state.story) return;
+    const { sourceId, targetId, type, description } = relationshipData;
     const updated = storyController.addRelationship(state.story, sourceId, targetId, type, description);
     dispatch({ type: ActionTypes.SET_STORY, payload: updated });
   }, [state.story]);
 
-  const removeRelationship = useCallback((relationshipId) => {
+  const deleteRelationship = useCallback((relationshipId) => {
     if (!state.story) return;
     const updated = storyController.removeRelationship(state.story, relationshipId);
     dispatch({ type: ActionTypes.SET_STORY, payload: updated });
   }, [state.story]);
 
-  const addChapter = useCallback((title) => {
+  const addChapter = useCallback((chapterData) => {
     if (!state.story) return;
-    const updated = storyController.addChapter(state.story, title);
+    const updated = storyController.addChapter(state.story, chapterData.title);
     dispatch({ type: ActionTypes.SET_STORY, payload: updated });
   }, [state.story]);
 
@@ -186,7 +207,7 @@ export function StoryProvider({ children, userId = null }) {
     dispatch({ type: ActionTypes.SET_STORY, payload: updated });
   }, [state.story]);
 
-  const removeChapter = useCallback((chapterIndex) => {
+  const deleteChapter = useCallback((chapterIndex) => {
     if (!state.story) return;
     try {
       const updated = storyController.removeChapter(state.story, chapterIndex);
@@ -200,10 +221,10 @@ export function StoryProvider({ children, userId = null }) {
     dispatch({ type: ActionTypes.UPDATE_STORY, payload: { currentChapterIndex: index } });
   }, []);
 
-  const generateFromIdea = useCallback(async (title, idea, genre) => {
+  const generateFromIdea = useCallback(async (params) => {
     dispatch({ type: ActionTypes.SET_GENERATING, payload: true });
     try {
-      const story = await storyController.generateFromIdea(title, idea, genre);
+      const story = await storyController.generateFromIdea(params.title, params.idea, params.genre);
       dispatch({ type: ActionTypes.SET_STORY, payload: story });
     } catch (error) {
       dispatch({ type: ActionTypes.SET_ERROR, payload: error.message });
@@ -218,15 +239,17 @@ export function StoryProvider({ children, userId = null }) {
     try {
       const result = await storyController.generateContinuations(state.story, mode, userPrompt);
       dispatch({ type: ActionTypes.SET_CONTINUATION_OPTIONS, payload: result.options });
+      return result;
     } catch (error) {
       dispatch({ type: ActionTypes.SET_ERROR, payload: error.message });
       dispatch({ type: ActionTypes.SET_GENERATING, payload: false });
+      throw error;
     }
   }, [state.story]);
 
-  const applyContinuation = useCallback((continuation) => {
+  const applyContinuation = useCallback((continuation, chapterIndex) => {
     if (!state.story) return;
-    const updated = storyController.applyContinuation(state.story, continuation, state.story.currentChapterIndex);
+    const updated = storyController.applyContinuation(state.story, continuation, chapterIndex);
     dispatch({ type: ActionTypes.SET_STORY, payload: updated });
     dispatch({ type: ActionTypes.CLEAR_CONTINUATION_OPTIONS });
   }, [state.story]);
@@ -235,6 +258,12 @@ export function StoryProvider({ children, userId = null }) {
     dispatch({ type: ActionTypes.CLEAR_CONTINUATION_OPTIONS });
   }, []);
 
+  const createVersion = useCallback((summary) => {
+    if (!state.story) return;
+    const updated = storyController.createVersion(state.story, summary);
+    dispatch({ type: ActionTypes.SET_STORY, payload: updated });
+  }, [state.story]);
+
   const setActiveView = useCallback((view) => {
     dispatch({ type: ActionTypes.SET_VIEW, payload: view });
   }, []);
@@ -242,20 +271,38 @@ export function StoryProvider({ children, userId = null }) {
   useEffect(() => { loadStories(); }, [loadStories]);
 
   useEffect(() => {
-    if (state.story && !state.isLoading) {
+    if (state.story && !state.loading) {
       const timeoutId = setTimeout(() => saveStory(), 2000);
       return () => clearTimeout(timeoutId);
     }
-  }, [state.story, state.isLoading]);
+  }, [state.story, state.loading, saveStory]);
 
   const value = {
     ...state,
-    createStory, loadStory, saveStory, deleteStory, loadStories,
-    updateStoryFields, dismissRegenerationPrompt,
-    addElement, updateElement, removeElement,
-    addRelationship, removeRelationship,
-    addChapter, updateChapter, removeChapter, setCurrentChapter,
-    generateFromIdea, generateContinuations, applyContinuation, clearContinuationOptions,
+    // FIX: Export as createNew to match component expectations
+    createNew,
+    loadStory,
+    saveStory,
+    deleteStory,
+    loadStories,
+    updateStory,
+    updateSynopsis,
+    dismissChanges,
+    confirmRegeneration,
+    createElement,
+    updateElement,
+    deleteElement,
+    createRelationship,
+    deleteRelationship,
+    addChapter,
+    updateChapter,
+    deleteChapter,
+    setCurrentChapter,
+    generateFromIdea,
+    generateContinuations,
+    applyContinuation,
+    clearContinuationOptions,
+    createVersion,
     setActiveView,
   };
 

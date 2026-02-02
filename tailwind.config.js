@@ -7,45 +7,58 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Primary palette
-        primary: {
-          50: '#F8F6F1',
-          100: '#EDE9E0',
-          200: '#E0DCD4',
-          300: '#C4BFB5',
-          400: '#8A8480',
-          500: '#5C574F',
-          600: '#2D2A26',
-          700: '#1F1D1A',
-          800: '#14120F',
-          900: '#0A0908',
+        // StoryForge color palette
+        'sf-brown': {
+          50: '#FAF8F5',
+          100: '#F5F1EB',
+          200: '#E8DFD1',
+          300: '#D4C4AB',
+          400: '#B5A088',
+          500: '#8B7355',
+          600: '#6B5D4D',
+          700: '#5C574F',
+          800: '#433D35',
         },
-        // Accent colors
-        accent: {
-          purple: '#9B8AC4',
-          blue: '#6B7DB3',
-          green: '#5B8E6B',
-          red: '#9B4D4D',
-          gold: '#C4A85B',
-          pink: '#C45B8E',
+        'sf-cream': {
+          DEFAULT: '#FDF8F3',
+          dark: '#F5EFEA',
         },
-        // Semantic colors
-        surface: {
-          primary: '#F8F6F1',
-          secondary: '#FFFFFF',
-          tertiary: '#EDE9E0',
+        'sf-purple': {
+          DEFAULT: '#7B6B9B',
+          light: '#9B8AC4',
         },
-        border: '#E0DCD4',
+        'sf-accent': {
+          DEFAULT: '#B8936E',
+        },
+        'sf-red': {
+          DEFAULT: '#9B4D4D',
+          500: '#9B4D4D',
+        },
+        'accent-blue': '#6B7DB3',
+        'accent-green': '#5B8E6B',
+        'accent-red': '#9B4D4D',
+        'accent-purple': '#7B6B9B',
+        'accent-gold': '#B8936E',
+        
+        // System colors
+        'surface-primary': '#FFFFFF',
+        'surface-secondary': '#FAF8F5',
+        'surface-tertiary': '#F5F1EB',
+        'border': '#E8DFD1',
+        'primary': {
+          400: '#B5A088',
+          500: '#8B7355',
+          600: '#6B5D4D',
+        },
       },
       fontFamily: {
-        serif: ['Crimson Pro', 'Georgia', 'serif'],
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        'sans': ['Inter', 'system-ui', 'sans-serif'],
+        'serif': ['Merriweather', 'Georgia', 'serif'],
+        'display': ['Merriweather', 'Georgia', 'serif'],
       },
       animation: {
-        'spin-slow': 'spin 2s linear infinite',
-        'fade-in': 'fadeIn 0.2s ease-out',
-        'slide-up': 'slideUp 0.2s ease-out',
-        'slide-right': 'slideRight 0.3s ease-out',
+        'fade-in': 'fadeIn 0.3s ease-in',
+        'slide-up': 'slideUp 0.3s ease-out',
       },
       keyframes: {
         fadeIn: {
@@ -56,12 +69,8 @@ export default {
           '0%': { opacity: '0', transform: 'translateY(20px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
-        slideRight: {
-          '0%': { transform: 'translateX(-100%)' },
-          '100%': { transform: 'translateX(0)' },
-        },
       },
     },
   },
   plugins: [],
-};
+}
