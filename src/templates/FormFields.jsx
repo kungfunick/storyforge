@@ -37,7 +37,7 @@ export function TextField({
         name={name}
         type={type}
         value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => onChange(e.target.value, name)}
         placeholder={placeholder}
         disabled={disabled}
         autoFocus={autoFocus}
@@ -77,7 +77,7 @@ export function TextArea({
         id={name}
         name={name}
         value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => onChange(e.target.value, name)}
         placeholder={placeholder}
         disabled={disabled}
         rows={rows}
@@ -122,13 +122,13 @@ export function SelectField({
         id={name}
         name={name}
         value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => onChange(e.target.value, name)}
         disabled={disabled}
         className={`form-select ${error ? 'form-input-error' : ''}`}
       >
         <option value="">{placeholder}</option>
         {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
+          <option key={opt.id || opt.value} value={opt.id || opt.value}>
             {opt.label}
           </option>
         ))}
@@ -158,7 +158,7 @@ export function Checkbox({
           type="checkbox"
           name={name}
           checked={checked || false}
-          onChange={(e) => onChange(e.target.checked)}
+          onChange={(e) => onChange(e.target.checked, name)}
           disabled={disabled}
           className="form-checkbox"
         />
