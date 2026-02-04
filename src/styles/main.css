@@ -395,7 +395,7 @@
   }
   
   .badge-default {
-    @apply bg-primary-200 text-primary-600;
+    @apply bg-surface-tertiary text-primary-600;
   }
 }
 
