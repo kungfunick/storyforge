@@ -379,7 +379,7 @@
   }
   
   .tag-impact-medium, .badge-warning {
-    @apply bg-accent-gold/20 text-amber-700;
+    @apply bg-amber-100 text-amber-700;
   }
   
   .tag-impact-low, .badge-success {
@@ -497,7 +497,8 @@
   }
   
   .chapter-title-preview {
-    @apply text-sm max-w-24 truncate;
+    @apply text-sm truncate;
+    max-width: 6rem;
   }
   
   .editor-main {
@@ -569,7 +570,8 @@
   }
   
   .node-label, .node-name {
-    @apply text-xs font-medium text-center max-w-20 truncate;
+    @apply text-xs font-medium text-center truncate;
+    max-width: 5rem;
   }
   
   .empty-canvas {
@@ -632,7 +634,7 @@
 
 @layer utilities {
   .spinner, .loading-spinner {
-    @apply w-10 h-10 border-3 border-border border-t-accent-blue rounded-full;
+    @apply w-10 h-10 border-4 border-border border-t-accent-blue rounded-full;
     animation: spin 1s linear infinite;
   }
   
