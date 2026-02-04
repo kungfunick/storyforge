@@ -58,11 +58,12 @@
   }
   
   .app-layout {
-    @apply flex flex-col md:flex-row min-h-screen;
+    @apply flex flex-col min-h-screen;
   }
   
   .main-content {
     @apply flex-1 p-4 md:p-6 overflow-y-auto;
+    /* No margin - sidebar overlays content */
   }
   
   .panel {
@@ -83,22 +84,27 @@
 }
 
 /* ============================================================================
-   3. Navigation
+   3. Navigation - RIGHT SIDE SLIDE-IN
    ============================================================================ */
 
 @layer components {
+  /* Sidebar - slides from RIGHT */
   .sidebar {
-    @apply fixed left-0 top-0 bottom-0 w-64 bg-primary-600 text-surface-primary;
-    @apply transform -translate-x-full transition-transform duration-300 z-50;
-    @apply flex flex-col overflow-y-auto;
+    @apply fixed right-0 top-0 bottom-0 w-72 bg-primary-600 text-surface-primary;
+    @apply transform translate-x-full transition-transform duration-300 ease-in-out z-50;
+    @apply flex flex-col overflow-y-auto shadow-2xl;
   }
   
   .sidebar.open {
     @apply translate-x-0;
   }
   
+  .sidebar-close {
+    @apply absolute top-4 right-4 p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors;
+  }
+  
   .sidebar-header {
-    @apply flex items-center gap-3 p-5 border-b border-white/10;
+    @apply flex items-center gap-3 p-5 pt-14 border-b border-white/10;
   }
   
   .sidebar-logo {
@@ -141,17 +147,20 @@
     @apply p-4 border-t border-white/10;
   }
   
+  /* Mobile header - menu button on RIGHT */
   .mobile-header {
     @apply flex items-center gap-3 p-3 bg-surface-secondary border-b border-border;
-    @apply sticky top-0 z-40 md:hidden;
+    @apply sticky top-0 z-40;
   }
   
   .mobile-title {
     @apply flex-1 font-serif text-lg font-semibold truncate;
   }
   
+  /* Overlay for sidebar */
   .sidebar-overlay {
-    @apply fixed inset-0 bg-black/50 z-40 md:hidden;
+    @apply fixed inset-0 bg-black/50 z-40;
+    animation: fadeIn 0.2s ease-out;
   }
 }
 
@@ -247,7 +256,7 @@
     @apply hover:bg-surface-tertiary hover:text-primary-600;
   }
   
-  .btn-icon.danger {
+  .btn-icon.danger, .btn-icon-danger {
     @apply hover:bg-accent-red/10 hover:text-accent-red;
   }
   
@@ -262,6 +271,18 @@
    ============================================================================ */
 
 @layer components {
+  .card {
+    @apply bg-surface-secondary rounded-xl border border-border;
+  }
+  
+  .card-header {
+    @apply flex justify-between items-center p-4 border-b border-border;
+  }
+  
+  .card-body {
+    @apply p-4;
+  }
+  
   .element-card {
     @apply flex items-start gap-3 p-4 bg-surface-primary rounded-xl;
     @apply cursor-grab transition-all;
@@ -272,7 +293,7 @@
     @apply opacity-50;
   }
   
-  .card-icon {
+  .card-icon, .icon-square {
     @apply w-10 h-10 rounded-xl flex items-center justify-center text-white flex-shrink-0;
   }
   
@@ -321,6 +342,14 @@
     @apply p-4 bg-surface-secondary border border-border rounded-xl mb-3;
   }
   
+  .continuation-option {
+    @apply p-4 bg-surface-secondary border border-border rounded-xl mb-3 hover:border-accent-blue transition-colors;
+  }
+  
+  .option-number {
+    @apply w-6 h-6 bg-accent-blue text-white rounded-full flex items-center justify-center text-xs font-semibold;
+  }
+  
   .continuation-header {
     @apply flex items-center gap-3 mb-2;
   }
@@ -341,24 +370,32 @@
     @apply flex gap-2 mb-3;
   }
   
-  .tag {
+  .tag, .badge {
     @apply inline-block px-2 py-0.5 rounded text-xs uppercase tracking-wide;
   }
   
-  .tag-impact-high {
+  .tag-impact-high, .badge-danger {
     @apply bg-accent-red/15 text-accent-red;
   }
   
-  .tag-impact-medium {
+  .tag-impact-medium, .badge-warning {
     @apply bg-accent-gold/20 text-amber-700;
   }
   
-  .tag-impact-low {
+  .tag-impact-low, .badge-success {
     @apply bg-accent-green/15 text-accent-green;
   }
   
-  .tag-tone {
+  .tag-tone, .badge-purple {
     @apply bg-accent-purple/15 text-accent-purple;
+  }
+  
+  .badge-primary {
+    @apply bg-accent-blue/15 text-accent-blue;
+  }
+  
+  .badge-default {
+    @apply bg-primary-200 text-primary-600;
   }
 }
 
@@ -373,11 +410,19 @@
   
   .modal-content {
     @apply bg-surface-secondary rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto;
-    @apply animate-slide-up;
+    animation: slideUp 0.2s ease-out;
   }
   
-  .modal-content.lg {
+  .modal-content.lg, .modal-lg {
     @apply max-w-2xl;
+  }
+  
+  .modal-sm {
+    @apply max-w-sm;
+  }
+  
+  .modal-xl {
+    @apply max-w-4xl;
   }
   
   .modal-header {
@@ -404,6 +449,20 @@
 @layer components {
   .editor-container {
     @apply flex flex-col h-[calc(100vh-120px)] min-h-[500px];
+  }
+  
+  .editor-chapters {
+    @apply flex gap-2 p-3 border-b border-border overflow-x-auto;
+  }
+  
+  .chapter-tab {
+    @apply px-3 py-1.5 text-sm rounded-lg bg-surface-primary border border-border;
+    @apply cursor-pointer transition-all whitespace-nowrap;
+    @apply hover:bg-surface-tertiary;
+  }
+  
+  .chapter-tab.active {
+    @apply bg-accent-blue text-white border-accent-blue;
   }
   
   .editor-sidebar {
@@ -446,7 +505,12 @@
   }
   
   .editor-toolbar {
-    @apply flex gap-3 p-3 border-b border-border flex-wrap;
+    @apply flex gap-3 p-3 border-b border-border flex-wrap items-center;
+  }
+  
+  .editor-title-input {
+    @apply font-serif text-lg font-semibold border-none bg-transparent flex-1 min-w-[200px];
+    @apply focus:outline-none;
   }
   
   .editor-content {
@@ -474,11 +538,12 @@
     @apply pointer-events-auto;
   }
   
-  .relationship-delete-zone {
-    @apply cursor-pointer opacity-0;
+  .relationship-delete-zone, .delete-zone {
+    @apply cursor-pointer opacity-0 transition-opacity;
   }
   
-  .relationship-line:hover .relationship-delete-zone {
+  .relationship-line:hover .relationship-delete-zone,
+  .relationship-line:hover .delete-zone {
     @apply opacity-100;
   }
   
@@ -486,24 +551,24 @@
     @apply relative;
   }
   
-  .rel-node {
+  .relationship-node, .rel-node {
     @apply absolute w-20 flex flex-col items-center gap-1.5 cursor-move;
     @apply transition-transform;
   }
   
-  .rel-node.drop-target {
+  .relationship-node.drop-target, .rel-node.drop-target {
     @apply scale-110;
   }
   
-  .rel-node.dragging {
+  .relationship-node.dragging, .rel-node.dragging {
     @apply opacity-50;
   }
   
-  .node-icon {
+  .node-avatar, .node-icon {
     @apply w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold text-lg shadow-lg;
   }
   
-  .node-name {
+  .node-label, .node-name {
     @apply text-xs font-medium text-center max-w-20 truncate;
   }
   
@@ -521,7 +586,7 @@
 }
 
 /* ============================================================================
-   10. AI Panel
+   10. AI Panel (Optional Feature)
    ============================================================================ */
 
 @layer components {
@@ -542,13 +607,13 @@
     @apply flex gap-2 flex-wrap mb-4;
   }
   
-  .mode-btn {
+  .ai-mode-btn, .mode-btn {
     @apply px-3 py-1.5 bg-surface-secondary border border-border rounded-full text-sm;
     @apply cursor-pointer transition-all;
     @apply hover:border-accent-blue;
   }
   
-  .mode-btn.active {
+  .ai-mode-btn.active, .mode-btn.active {
     @apply bg-accent-blue text-white border-accent-blue;
   }
   
@@ -566,9 +631,13 @@
    ============================================================================ */
 
 @layer utilities {
-  .loading-spinner {
+  .spinner, .loading-spinner {
     @apply w-10 h-10 border-3 border-border border-t-accent-blue rounded-full;
     animation: spin 1s linear infinite;
+  }
+  
+  .spinner-sm {
+    @apply w-4 h-4 border-2;
   }
   
   .btn-loading {
@@ -588,7 +657,7 @@
     @apply ml-auto px-3 py-1 bg-amber-700 text-white rounded text-xs;
   }
   
-  .elements-grid {
+  .content-grid, .elements-grid {
     @apply grid gap-3;
   }
   
@@ -600,13 +669,17 @@
     @apply grid grid-cols-2 gap-3 mb-4;
   }
   
+  .page-header {
+    @apply flex justify-between items-center mb-6 flex-wrap gap-3;
+  }
+  
   .export-options {
     @apply grid gap-3;
   }
   
   .export-btn {
     @apply flex items-center gap-4 p-4 bg-surface-primary border border-border rounded-xl;
-    @apply cursor-pointer transition-all text-left;
+    @apply cursor-pointer transition-all text-left w-full;
     @apply hover:border-accent-blue;
   }
   
@@ -641,6 +714,23 @@
   .version-summary {
     @apply text-sm text-primary-500 mb-3;
   }
+  
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: theme('colors.border');
+    border-radius: 3px;
+  }
 }
 
 /* ============================================================================
@@ -662,8 +752,25 @@
 }
 
 @keyframes slideRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slideLeft {
   from { transform: translateX(-100%); }
   to { transform: translateX(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.2s ease-out;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 
 /* ============================================================================
@@ -671,29 +778,26 @@
    ============================================================================ */
 
 @media (min-width: 768px) {
+  /* Sidebar remains slide-in overlay on all sizes */
   .sidebar {
-    @apply relative translate-x-0 w-64;
-  }
-  
-  .sidebar-overlay {
-    @apply hidden;
+    @apply w-80;
   }
   
   .mobile-header {
-    @apply hidden;
+    /* Keep header visible on all sizes for consistent UX */
   }
   
-  .elements-grid {
+  .content-grid, .elements-grid {
     @apply grid-cols-2;
   }
   
   .editor-container {
-    @apply flex-row h-[calc(100vh-48px)];
+    @apply h-[calc(100vh-80px)];
   }
 }
 
 @media (min-width: 1024px) {
-  .elements-grid {
+  .content-grid, .elements-grid {
     @apply grid-cols-2 xl:grid-cols-3;
   }
 }
@@ -748,7 +852,7 @@
   .regeneration-prompt {
     @apply fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96;
     @apply bg-surface-secondary rounded-xl shadow-lg border border-border p-4 z-50;
-    @apply animate-slide-up;
+    animation: slideUp 0.2s ease-out;
   }
   
   .regeneration-header {

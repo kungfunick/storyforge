@@ -2,7 +2,7 @@
  * Editor Panel
  * ============================================================================
  * 
- * @description Story editor with chapter management and AI continuation
+ * @description Story editor with chapter management and optional AI continuation
  * @module components/panels/EditorPanel
  */
 
@@ -98,6 +98,9 @@ export function EditorPanel() {
   // Word count for current chapter
   const wordCount = currentChapter.content?.split(/\s+/).filter(Boolean).length || 0;
 
+  // AI generation modes as array for mapping
+  const generationModes = Object.values(GENERATION_MODES);
+
   return (
     <div className="h-full flex flex-col">
       {/* Editor container */}
@@ -116,6 +119,7 @@ export function EditorPanel() {
           <button
             className="chapter-tab"
             onClick={() => setShowNewChapter(true)}
+            title="Add new chapter"
           >
             <Icons.Plus size={14} />
           </button>
@@ -132,16 +136,18 @@ export function EditorPanel() {
           />
           
           <div className="flex items-center gap-2 ml-auto">
-            <span className="text-sm text-sf-brown-400">
+            <span className="text-sm text-primary-400">
               {wordCount.toLocaleString()} words
             </span>
             
+            {/* AI button - clearly marked as optional */}
             <button
-              className="btn btn-sm"
+              className={`btn btn-sm ${showAIPanel ? 'btn-ai' : ''}`}
               onClick={() => setShowAIPanel(!showAIPanel)}
+              title="AI writing assistant (optional)"
             >
               <Icons.Sparkles size={14} />
-              AI Continue
+              <span className="hidden sm:inline">AI Assist</span>
             </button>
 
             {chapters.length > 1 && (
@@ -164,13 +170,14 @@ export function EditorPanel() {
           placeholder="Start writing your story..."
         />
 
-        {/* AI Panel */}
+        {/* AI Panel - Optional Feature */}
         {showAIPanel && (
           <div className="ai-panel">
             <div className="flex items-center justify-between mb-4">
               <h4 className="font-semibold flex items-center gap-2">
-                <Icons.Sparkles size={18} className="text-sf-purple" />
-                AI Continuation
+                <Icons.Sparkles size={18} className="text-accent-purple" />
+                AI Writing Assistant
+                <span className="text-xs font-normal text-primary-400">(optional)</span>
               </h4>
               <button
                 className="btn-icon"
@@ -183,9 +190,13 @@ export function EditorPanel() {
               </button>
             </div>
 
+            <p className="text-sm text-primary-500 mb-4">
+              Get AI-generated continuation options based on your story. This feature requires an internet connection.
+            </p>
+
             {/* Mode selection */}
             <div className="flex flex-wrap gap-2 mb-4">
-              {GENERATION_MODES.map(mode => (
+              {generationModes.map(mode => (
                 <button
                   key={mode.id}
                   className={`ai-mode-btn ${aiMode === mode.id ? 'active' : ''}`}
@@ -200,7 +211,7 @@ export function EditorPanel() {
             {/* Generate button */}
             {!continuations && !aiLoading && (
               <button
-                className="btn btn-primary w-full"
+                className="btn btn-ai w-full"
                 onClick={handleGenerateContinuations}
               >
                 <Icons.Sparkles size={16} />
@@ -212,13 +223,16 @@ export function EditorPanel() {
             {aiLoading && (
               <div className="flex items-center justify-center py-8">
                 <div className="spinner" />
-                <span className="ml-3 text-sf-brown-500">Generating options...</span>
+                <span className="ml-3 text-primary-500">Generating options...</span>
               </div>
             )}
 
             {/* Continuation options */}
             {continuations && (
               <div className="space-y-3 mt-4">
+                <p className="text-sm text-primary-500 mb-2">
+                  Choose an option to continue your story:
+                </p>
                 {continuations.map((option, i) => (
                   <ContinuationCard
                     key={i}
@@ -227,6 +241,12 @@ export function EditorPanel() {
                     onSelect={handleSelectContinuation}
                   />
                 ))}
+                <button 
+                  className="btn w-full"
+                  onClick={() => setContinuations(null)}
+                >
+                  Cancel
+                </button>
               </div>
             )}
           </div>

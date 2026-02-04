@@ -2,7 +2,7 @@
  * StoryForge App
  * ============================================================================
  * 
- * @description Main application component
+ * @description Main application component - Offline-first story creator
  * @module App
  */
 
@@ -65,13 +65,13 @@ function AppLayout() {
 
   return (
     <div className="app-container">
-      {/* Mobile header */}
+      {/* Mobile header - menu button on right */}
       <MobileHeader 
         onOpenSidebar={() => setSidebarOpen(true)}
         storyTitle={story?.title}
       />
 
-      {/* Sidebar */}
+      {/* Sidebar - slides from right, overlays content */}
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -81,8 +81,8 @@ function AppLayout() {
         onNewStory={handleNewStory}
       />
 
-      {/* Main content */}
-      <main className="main-content md:ml-72 lg:ml-80">
+      {/* Main content - full width, not affected by sidebar */}
+      <main className="main-content">
         {needsStory || showGenerator ? (
           <div className="flex items-center justify-center min-h-[60vh]">
             <StoryGenerator onClose={() => setShowGenerator(false)} />

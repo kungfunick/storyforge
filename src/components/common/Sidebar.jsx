@@ -2,14 +2,13 @@
  * Sidebar Component
  * ============================================================================
  * 
- * @description Main navigation sidebar
+ * @description Main navigation sidebar - slides from right, overlays content
  * @module components/common/Sidebar
  */
 
 import React from 'react';
 import Icons from './Icons';
 import { ELEMENT_TYPES } from '@models/Element';
-import { NAV_ITEMS } from '@utils/constants';
 
 /**
  * Sidebar navigation component
@@ -55,7 +54,7 @@ export function Sidebar({
 
   return (
     <>
-      {/* Mobile overlay */}
+      {/* Overlay - closes sidebar when clicking outside */}
       {isOpen && (
         <div 
           className="sidebar-overlay"
@@ -63,8 +62,17 @@ export function Sidebar({
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - slides from right */}
       <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+        {/* Close button */}
+        <button 
+          className="sidebar-close"
+          onClick={onClose}
+          aria-label="Close menu"
+        >
+          <Icons.X size={24} />
+        </button>
+
         <div className="sidebar-header">
           <Icons.Book size={28} className="text-sf-purple" />
           <span className="sidebar-logo">StoryForge</span>
@@ -131,6 +139,12 @@ export function Sidebar({
 export function MobileHeader({ onOpenSidebar, storyTitle }) {
   return (
     <header className="mobile-header">
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        <Icons.Book size={20} className="text-sf-purple flex-shrink-0" />
+        <span className="font-display font-semibold truncate">
+          {storyTitle || 'StoryForge'}
+        </span>
+      </div>
       <button 
         className="btn-icon"
         onClick={onOpenSidebar}
@@ -138,12 +152,6 @@ export function MobileHeader({ onOpenSidebar, storyTitle }) {
       >
         <Icons.Menu size={24} />
       </button>
-      <div className="flex items-center gap-2 flex-1 min-w-0">
-        <Icons.Book size={20} className="text-sf-purple flex-shrink-0" />
-        <span className="font-display font-semibold truncate">
-          {storyTitle || 'StoryForge'}
-        </span>
-      </div>
     </header>
   );
 }
