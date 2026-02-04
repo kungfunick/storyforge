@@ -2,7 +2,7 @@
  * Editor Panel
  * ============================================================================
  * 
- * @description Story editor with chapter management and optional AI continuation
+ * @description Story editor with rich text editing and optional AI continuation
  * @module components/panels/EditorPanel
  */
 
@@ -11,6 +11,7 @@ import { useStory } from '@contexts/StoryContext';
 import { PageTemplate } from '@templates/PageTemplates';
 import { ContinuationCard } from '@templates/CardTemplates';
 import { Modal } from '@components/common/Modal';
+import { RichTextEditor } from '@components/common/RichTextEditor';
 import Icons from '@components/common/Icons';
 import { GENERATION_MODES } from '@utils/constants';
 import { debounce } from '@utils/helpers';
@@ -57,8 +58,8 @@ export function EditorPanel() {
     updateChapter(currentIndex, { title });
   };
 
-  const handleContentChange = (e) => {
-    debouncedUpdateContent(e.target.value);
+  const handleContentChange = (content) => {
+    debouncedUpdateContent(content);
   };
 
   const handleAddChapter = () => {
@@ -95,8 +96,16 @@ export function EditorPanel() {
     setShowAIPanel(false);
   };
 
-  // Word count for current chapter
-  const wordCount = currentChapter.content?.split(/\s+/).filter(Boolean).length || 0;
+  // Word count - strip HTML tags for accurate count
+  const getPlainText = (html) => {
+    if (!html) return '';
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    return temp.textContent || temp.innerText || '';
+  };
+  
+  const plainText = getPlainText(currentChapter.content);
+  const wordCount = plainText.split(/\s+/).filter(Boolean).length || 0;
 
   // AI generation modes as array for mapping
   const generationModes = Object.values(GENERATION_MODES);
@@ -125,17 +134,17 @@ export function EditorPanel() {
           </button>
         </div>
 
-        {/* Toolbar */}
-        <div className="editor-toolbar">
+        {/* Chapter title bar */}
+        <div className="editor-title-bar">
           <input
             type="text"
-            className="editor-title-input"
+            className="editor-chapter-title"
             value={currentChapter.title || ''}
             onChange={(e) => handleTitleChange(e.target.value)}
             placeholder="Chapter Title"
           />
           
-          <div className="flex items-center gap-2 ml-auto">
+          <div className="flex items-center gap-2">
             <span className="text-sm text-primary-400">
               {wordCount.toLocaleString()} words
             </span>
@@ -162,13 +171,15 @@ export function EditorPanel() {
           </div>
         </div>
 
-        {/* Content area */}
-        <textarea
-          className="editor-content scrollbar-thin"
-          defaultValue={currentChapter.content || ''}
-          onChange={handleContentChange}
-          placeholder="Start writing your story..."
-        />
+        {/* Rich Text Editor */}
+        <div className="editor-main">
+          <RichTextEditor
+            content={currentChapter.content || ''}
+            onChange={handleContentChange}
+            placeholder="Start writing your story..."
+            minHeight="calc(100vh - 280px)"
+          />
+        </div>
 
         {/* AI Panel - Optional Feature */}
         {showAIPanel && (
