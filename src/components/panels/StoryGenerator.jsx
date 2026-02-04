@@ -38,7 +38,8 @@ export function StoryGenerator({ onClose }) {
   const handleSubmit = async () => {
     if (mode === 'blank') {
       // Create story immediately - no API needed
-      createNew({ title: formData.title || 'Untitled Story' });
+      // createNew expects a string title, not an object
+      createNew(formData.title || 'Untitled Story');
       onClose?.();
       return;
     }
